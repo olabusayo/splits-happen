@@ -1,59 +1,57 @@
 import argparse
 
-total_score = 0
 
-
-def get_value(ind, bowling_line):
+def convert_turn_to_score(ind, bowling_line):
     char = bowling_line[ind]
     if char == "X":
         return 10
     elif char == "/":
-        return 10 - int(bowling_line[ind-1])
+        return 10 - convert_turn_to_score(ind - 1, bowling_line)
     elif char == "-":
         return 0
     else:
         return int(char)
 
 
-def handle_strike(ind, bowling_line):
-    global total_score
-
-    total_score += 10
-    bonus_score = handle_bonus(ind, bowling_line, 2)
-    total_score += bonus_score
-
-def handle_spare(ind, bowling_line):
-    global total_score
-
-    total_score += get_value(ind, bowling_line)
-    bonus_score = handle_bonus(ind, bowling_line, 1)
-    total_score += bonus_score
-
-
-def handle_miss(ind, bowling_line):
-    pass # do nothing
-
-
-def handle_reg(ind, bowling_line):
-    global total_score
-
-    total_score += get_value(ind, bowling_line)
-
-
-def handle_bonus(ind, bowling_line, bonus_turns):
-    score = 0
-    for i in range(1, bonus_turns+1):
-        new_ind = ind + i
-        if new_ind < len(bowling_line):
-            score += get_value(new_ind, bowling_line)
+def get_score_and_bonus_for_strike(ind, bowling_line):
+    bonus_score = get_bonus_score(ind, bowling_line)
+    score = 10 + bonus_score
     return score
 
 
-def process_input(bowling_line):
-    # bowling_line = "5/5/5/5/5/5/5/5/5/5/5"
-    # bowling_line = "9-9-9-9-9-9-9-9-9-9-"
-    bowling_line = "X7/9-X-88/-6XXX81"
+def get_score_and_bonus_for_spare(ind, bowling_line):
+    score = convert_turn_to_score(ind, bowling_line)
+    bonus_score = get_bonus_score(ind, bowling_line)
+    score += bonus_score
+    return score
 
+
+def handle_miss(ind, bowling_line):
+    return 0
+
+
+def handle_reg(ind, bowling_line):
+    return convert_turn_to_score(ind, bowling_line)
+
+
+def get_bonus_score(ind, bowling_line):
+    score = 0
+    bonus_turns = 0
+
+    if bowling_line[ind] == "X":
+        bonus_turns = 2
+    elif bowling_line[ind] == "/":
+        bonus_turns = 1
+
+    for i in range(1, bonus_turns+1):
+        new_ind = ind + i
+        if new_ind < len(bowling_line):
+            score += convert_turn_to_score(new_ind, bowling_line)
+    return score
+
+
+def process_bowling_line(bowling_line):
+    total_score = 0
     frame_max = 10
     curr_turn = 0
     curr_frame = 0
@@ -63,20 +61,21 @@ def process_input(bowling_line):
         char = bowling_line[ind]
         if curr_frame <= frame_max:
             if char == "X":
-                handle_strike(ind, bowling_line)
+                total_score += get_score_and_bonus_for_strike(ind, bowling_line)
                 curr_turn = 0
             elif char == '/':
-                handle_spare(ind, bowling_line)
+                total_score += get_score_and_bonus_for_spare(ind, bowling_line)
                 curr_turn = 0
             elif char == '-':
-                handle_miss(ind, bowling_line)
+                total_score += handle_miss(ind, bowling_line)
                 if curr_turn == 2:
                     curr_turn = 0
             else:
-                handle_reg(ind, bowling_line)
+                total_score += handle_reg(ind, bowling_line)
                 if curr_turn == 2:
                     curr_turn = 0
-    pass
+
+    return total_score
 
 
 
@@ -86,8 +85,7 @@ def main():
                                       "where 'X' indicates a strike, '/' indicates a spare, '-' indicates a miss")
     args = parser.parse_args()
     print(args.input)
-    process_input(args.input)
-    pass
+    print(f"The total score for the bowling line {args.input} is {process_bowling_line(args.input)}")
 
 
 if __name__ == "__main__":
