@@ -8,7 +8,7 @@ sample_bls = {"8-7-539/9/X8-513/9-": 122, "8/9-44729-XX8-359/7": 133, "8-5/35817
 sample_bls_list = list(sample_bls)
 
 
-def test_get_value():
+def test_convert_turn_to_score():
     bl = sample_bls_list[0]  # ["8-7-539/9/X8-513/9-"]
     assert convert_turn_to_score(3, bl) == 0  # testing miss
     assert convert_turn_to_score(0, bl) == 8  # testing number
@@ -26,48 +26,52 @@ def test_get_bonus_score():
     assert get_bonus_score(0, bl) == 10
     assert get_bonus_score(2, bl) == 9
     assert get_bonus_score(9, bl) == 0
+    bl = sample_bls_list[1]  # ["8/9-44729-XX8-359/7"]
+    assert get_bonus_score(0, bl) == 0
+    assert get_bonus_score(2, bl) == 0
+    assert get_bonus_score(9, bl) == 0
+    assert get_bonus_score(10, bl) == 18
+    bl = sample_bls_list[6]  # ["X1763X2/43452--927"]
+    assert get_bonus_score(2, bl) == 0
+    assert get_bonus_score(7, bl) == 4
+    assert get_bonus_score(9, bl) == 0
+    bl = sample_bls_list[7]  # ["237/428-812518444-9/7"]
+    assert get_bonus_score(0, bl) == 0
+    assert get_bonus_score(2, bl) == 0
+    assert get_bonus_score(7, bl) == 0
 
 
-def test_get_score_and_bonus_for_strike():
+def test_get_turn_score_and_bonus():
     bl = sample_bls_list[8]  # ["X-/1318262532248/12"]
-    assert get_score_and_bonus_for_strike(0, bl) == 20
+    assert convert_turn_to_score(0, bl) + get_bonus_score(0, bl) == 20
     bl = sample_bls_list[3]  # ["X7/9-X-88/-6XXX81"]
-    assert get_score_and_bonus_for_strike(0, bl) == 20
-    assert get_score_and_bonus_for_strike(5, bl) == 18
-    assert get_score_and_bonus_for_strike(12, bl) == 30
-    assert get_score_and_bonus_for_strike(13, bl) == 28
-    assert get_score_and_bonus_for_strike(14, bl) == 19
-
-
-def test_get_score_and_bonus_for_spare():
+    assert convert_turn_to_score(0, bl) + get_bonus_score(0, bl) == 20
+    assert convert_turn_to_score(5, bl) + get_bonus_score(5, bl) == 18
+    assert convert_turn_to_score(12, bl) + get_bonus_score(12, bl) == 30
+    assert convert_turn_to_score(13, bl) + get_bonus_score(13, bl) == 28
+    assert convert_turn_to_score(14, bl) + get_bonus_score(14, bl) == 19
     bl = sample_bls_list[2]  # ["8-5/358171X9/XX8/6"]
-    assert get_score_and_bonus_for_spare(3, bl) == 8
-    assert get_score_and_bonus_for_spare(12, bl) == 11
-    assert get_score_and_bonus_for_spare(16, bl) == 8
+    assert convert_turn_to_score(3, bl) + get_bonus_score(3, bl) == 8
+    assert convert_turn_to_score(12, bl) + get_bonus_score(12, bl) == 11
+    assert convert_turn_to_score(16, bl) + get_bonus_score(16, bl) == 8
     bl = sample_bls_list[3]  # ["X7/9-X-88/-6XXX81"]
-    assert get_score_and_bonus_for_spare(2, bl) == 12
-    assert get_score_and_bonus_for_spare(9, bl) == 2
+    assert convert_turn_to_score(2, bl) + get_bonus_score(2, bl) == 12
+    assert convert_turn_to_score(9, bl) + get_bonus_score(9, bl) == 2
     bl = sample_bls_list[4]  # [35X3/81XX62547/X63"]
-    assert get_score_and_bonus_for_spare(4, bl) == 15
-    assert get_score_and_bonus_for_spare(14, bl) == 13
-
-
-def test_handle_reg():
+    assert convert_turn_to_score(4, bl) + get_bonus_score(4, bl) == 15
+    assert convert_turn_to_score(14, bl) + get_bonus_score(14, bl) == 13
     bl = sample_bls_list[2]  # ["8-5/358171X9/XX8/6"]
-    assert handle_reg(8, bl) == 7
-    assert handle_reg(15, bl) == 8
+    assert convert_turn_to_score(8, bl) + get_bonus_score(8, bl) == 7
+    assert convert_turn_to_score(15, bl) + get_bonus_score(15, bl) == 8
     bl = sample_bls_list[5]  # ["24X3/4-72-481--9/71"]
-    assert handle_reg(3, bl) == 3
-    assert handle_reg(11, bl) == 8
-
-
-def test_handle_miss():
+    assert convert_turn_to_score(3, bl) + get_bonus_score(3, bl) == 3
+    assert convert_turn_to_score(11, bl) + get_bonus_score(11, bl) == 8
     bl = sample_bls_list[8]  # ["X-/1318262532248/12"]
-    assert handle_miss(1, bl) == 0
+    assert convert_turn_to_score(1, bl) + get_bonus_score(1, bl) == 0
     bl = sample_bls_list[3]  # [["X7/9-X-88/-6XXX81"]
-    assert handle_miss(4, bl) == 0
-    assert handle_miss(6, bl) == 0
-    assert handle_miss(10, bl) == 0
+    assert convert_turn_to_score(4, bl) + get_bonus_score(4, bl) == 0
+    assert convert_turn_to_score(6, bl) + get_bonus_score(6, bl) == 0
+    assert convert_turn_to_score(10, bl) + get_bonus_score(10, bl) == 0
 
 
 def test_process_bowling_line():
